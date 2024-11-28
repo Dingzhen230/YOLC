@@ -42,15 +42,18 @@ class YOLCHead(BaseDenseHead, BBoxTestMixin):
     """
 
     def __init__(self,
-                 in_channel,
-                 feat_channel,
-                 num_classes,
-                 loss_center_local=dict(
-                     type='GaussianFocalLoss', loss_weight=1.0),
-                 loss_xywh=dict(type='GWDLoss', loss_weight=2.0),
-                 train_cfg=None,
-                 test_cfg=None,
-                 init_cfg=None):
+                in_channel,
+                feat_channel,
+                num_classes,
+                loss_center_local=dict(
+                    type='GaussianFocalLoss', 
+                    loss_weight=1.0),
+                loss_xywh=dict(
+                    type='GWDLoss', 
+                    loss_weight=2.0),
+                train_cfg=None,
+                test_cfg=None,
+                init_cfg=None):
         super(YOLCHead, self).__init__(init_cfg)
         self.num_classes = num_classes
         self.local_head = self._build_loc_head(in_channel, num_classes)
@@ -162,7 +165,7 @@ class YOLCHead(BaseDenseHead, BBoxTestMixin):
             wh_preds (List[Tensor]): wh predicts for all levels, the channels
                 number is 2.
             offset_preds (List[Tensor]): offset predicts for all levels, the
-               channels number is 2.
+                channels number is 2.
         """
         return multi_apply(self.forward_single, feats)
 
@@ -174,7 +177,7 @@ class YOLCHead(BaseDenseHead, BBoxTestMixin):
 
         Returns:
             center_local_pred (Tensor): center predict heatmaps, the
-               channels number is num_classes.
+                channels number is num_classes.
             wh_pred (Tensor): wh predicts, the channels number is 2.
             offset_pred (Tensor): offset predicts, the channels number is 2.
         """
@@ -221,22 +224,23 @@ class YOLCHead(BaseDenseHead, BBoxTestMixin):
 
     @force_fp32(apply_to=('center_local_preds', 'xywh_preds_coarse', 'xywh_preds_refine'))
     def loss(self,
-             center_local_preds,
-             xywh_preds_coarse,
-             xywh_preds_refine,
-             gt_bboxes,
-             gt_labels,
-             img_metas,
-             gt_bboxes_ignore=None):
+            center_local_preds,
+            xywh_preds_coarse,
+            xywh_preds_refine,
+            gt_bboxes,
+            gt_labels,
+            img_metas,
+            #gt_bboxes_ignore=None
+            ):
         """Compute losses of the head.
 
         Args:
             center_local_preds (list[Tensor]): center predict localization for
-               all levels with shape (B, 10, H, W).
+                all levels with shape (B, 10, H, W).
             xywh_preds_coarse (list[Tensor]): xywh predicts for all levels with
-               shape (B, 4, H, W).
+                shape (B, 4, H, W).
             xywh_preds_refine (list[Tensor]): xywh predicts for all levels with
-               shape (B, 4, H, W).
+                shape (B, 4, H, W).
             gt_bboxes (list[Tensor]): Ground truth bboxes for each image with
                 shape (num_gts, 4) in [tl_x, tl_y, br_x, br_y] format.
             gt_labels (list[Tensor]): class indices corresponding to each box.
@@ -262,8 +266,8 @@ class YOLCHead(BaseDenseHead, BBoxTestMixin):
         center_points = self.get_points(featmap_sizes, img_metas, device)[0]
 
         target_result, avg_factor = self.get_targets(gt_bboxes, gt_labels,
-                                                     xywh_pred_coarse.shape,
-                                                     img_metas[0]['pad_shape'])
+                                                    xywh_pred_coarse.shape,
+                                                    img_metas[0]['pad_shape'])
 
         center_local_target = target_result['center_heatmap_target']
         
@@ -329,13 +333,13 @@ class YOLCHead(BaseDenseHead, BBoxTestMixin):
 
         Returns:
             tuple[dict,float]: The float value is mean avg_factor, the dict has
-               components below:
-               - center_heatmap_target (Tensor): targets of center heatmap, \
-                   shape (B, num_classes, H, W).
-               - xywh_target (Tensor): targets of xywh predict, shape \
-                   (B, 4, H, W).
-               - xywh_target_weight (Tensor): weights of wh and offset \
-                   predict, shape (B, 4, H, W).
+            components below:
+            - center_heatmap_target (Tensor): targets of center heatmap, \
+                shape (B, num_classes, H, W).
+            - xywh_target (Tensor): targets of xywh predict, shape \
+                (B, 4, H, W).
+            - xywh_target_weight (Tensor): weights of wh and offset \
+                predict, shape (B, 4, H, W).
         """
         img_h, img_w = img_shape[:2]
         bs, _, feat_h, feat_w = feat_shape
@@ -370,7 +374,7 @@ class YOLCHead(BaseDenseHead, BBoxTestMixin):
                 box_h = (gt_bbox[j][3] - gt_bbox[j][1])
                 box_w = (gt_bbox[j][2] - gt_bbox[j][0])
                 radius = gaussian_radius([box_h, box_w],
-                                         min_overlap=0.3)
+                                        min_overlap=0.3)
                 radius = max(0, int(radius))
                 ind = gt_label[j]
                 ori_ctx_int, ori_cty_int = origin_gt_centers[j].int()
@@ -399,12 +403,12 @@ class YOLCHead(BaseDenseHead, BBoxTestMixin):
         return target_result, avg_factor
 
     def get_bboxes(self,
-                   center_heatmap_preds,
-                   xywh_preds_init,
-                   xywh_preds,
-                   img_metas,
-                   rescale=True,
-                   with_nms=False):
+                center_heatmap_preds,
+                # xywh_preds_init,
+                xywh_preds,
+                img_metas,
+                rescale=True,
+                with_nms=False):
         """Transform network output for a batch into bbox predictions.
 
         Args:
@@ -455,7 +459,7 @@ class YOLCHead(BaseDenseHead, BBoxTestMixin):
             for (det_bboxes, det_labels) in zip(batch_det_bboxes,
                                                 batch_labels):
                 det_bbox, det_label = self._bboxes_nms(det_bboxes, det_labels,
-                                                       self.test_cfg)
+                                                    self.test_cfg)
                 det_results.append(tuple([det_bbox, det_label]))
         else:
             det_results = [
@@ -465,11 +469,11 @@ class YOLCHead(BaseDenseHead, BBoxTestMixin):
 
 
     def decode_heatmap(self,
-                       center_heatmap_pred,
-                       xywh_pred,
-                       img_shape,
-                       k=100,
-                       kernel=3):
+                    center_heatmap_pred,
+                    xywh_pred,
+                    img_shape,
+                    k=100,
+                    kernel=3):
         
         # center_heatmap_pred [bs, 1, H, W]
         height, width = xywh_pred.shape[2:]
@@ -494,7 +498,7 @@ class YOLCHead(BaseDenseHead, BBoxTestMixin):
 
         batch_bboxes = torch.stack([tl_x, tl_y, br_x, br_y], dim=2)
         batch_bboxes = torch.cat((batch_bboxes, batch_scores[..., None]),
-                                 dim=-1)
+                                dim=-1)
         return batch_bboxes, batch_topk_labels
 
     def get_topk_from_heatmap(self, center_heatmap, k=20):
@@ -552,8 +556,8 @@ class YOLCHead(BaseDenseHead, BBoxTestMixin):
             return bboxes, labels
 
         out_bboxes, keep = batched_nms(bboxes[:, :4].contiguous(),
-                                       bboxes[:, -1].contiguous(), labels,
-                                       cfg.nms_cfg)
+                                    bboxes[:, -1].contiguous(), labels,
+                                    cfg.nms_cfg)
         out_labels = labels[keep]
 
         if len(out_bboxes) > 0:

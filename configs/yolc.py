@@ -59,8 +59,8 @@ test_pipeline = [
             dict(
                 type='Collect',
                 meta_keys=('filename', 'ori_shape', 'img_shape', 'pad_shape',
-                           'scale_factor', 'flip', 'flip_direction',
-                           'img_norm_cfg', 'border'),
+                        'scale_factor', 'flip', 'flip_direction',
+                        'img_norm_cfg', 'border'),
                 keys=['img'])
         ])
 ]
@@ -137,8 +137,8 @@ data = dict(
                     dict(
                         type='Collect',
                         meta_keys=('filename', 'ori_shape', 'img_shape',
-                                   'pad_shape', 'scale_factor', 'flip',
-                                   'flip_direction', 'img_norm_cfg', 'border'),
+                                'pad_shape', 'scale_factor', 'flip',
+                                'flip_direction', 'img_norm_cfg', 'border'),
                         keys=['img'])
                 ])
         ]),
@@ -175,8 +175,8 @@ data = dict(
                     dict(
                         type='Collect',
                         meta_keys=('filename', 'ori_shape', 'img_shape',
-                                   'pad_shape', 'scale_factor', 'flip',
-                                   'flip_direction', 'img_norm_cfg', 'border'),
+                                'pad_shape', 'scale_factor', 'flip',
+                                'flip_direction', 'img_norm_cfg', 'border'),
                         keys=['img'])
                 ])
         ]))

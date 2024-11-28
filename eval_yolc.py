@@ -210,8 +210,8 @@ if __name__ == '__main__':
                     dict(
                         type='Collect',
                         meta_keys=('filename', 'ori_shape', 'img_shape',
-                                   'pad_shape', 'scale_factor', 'flip',
-                                   'flip_direction', 'img_norm_cfg', 'border'),
+                                'pad_shape', 'scale_factor', 'flip',
+                                'flip_direction', 'img_norm_cfg', 'border'),
                         keys=['img'])
                 ])
         ])
